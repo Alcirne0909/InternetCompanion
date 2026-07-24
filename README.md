@@ -1,3 +1,2 @@
-This is a virtual companion, made inspired by BonziBuddy
-
+Feeling bored? Don't worry, let Mr. Rocha take care of you !!
 ![Main Logo](BolaBuddy1.png)
