@@ -15,7 +15,7 @@ import ctypes
 from openrouter import OpenRouter
 from dotenv import load_dotenv
 
-from openai import OpenAI
+
 import sys
 import os
 
@@ -23,8 +23,6 @@ import os
 load_dotenv()
 
 OPENROUTERAPIKEY = os.getenv("KEY")
-#clientCha = OpenAI(api_key=OPENAI_KEY)
-
 pyautogui.FAILSAFE = False
 
 
