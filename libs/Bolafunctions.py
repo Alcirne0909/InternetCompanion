@@ -29,6 +29,55 @@ load_dotenv()
 OPENROUTERAPIKEY = os.getenv("KEY")
 
 
+def CheckifFolderHasBeenModified(folderpath, callback):
+    files_before = set(os.listdir(folderpath))
+    while True:
+
+        files_now = set(os.listdir(folderpath))
+        new_files = files_now - files_before
+        
+        if new_files:
+            for f in new_files:
+                print(f"Novo arquivo detectado: {f}")
+                callback(f, folderpath)
+                files_before = files_now
+        time.sleep(1)
+        
+
+
+
+def create_folder_with_icon(folder_path, icon_path):
+    """
+    Cria uma pasta e define um ícone customizado para ela.
+    icon_path deve ser o caminho para um arquivo .ico
+    """
+    # 1. Cria a pasta
+    os.makedirs(folder_path, exist_ok=True)
+
+    # 2. Cria o desktop.ini dentro dela
+    ini_path = os.path.join(folder_path, "desktop.ini")
+    icon_abs_path = os.path.abspath(icon_path)
+
+    with open(ini_path, "w") as f:
+        f.write("[.ShellClassInfo]\n")
+        f.write(f"IconResource={icon_abs_path},0\n")
+
+    # 3. Marca o desktop.ini como oculto + sistema (obrigatório pro Windows respeitar)
+    FILE_ATTRIBUTE_HIDDEN = 0x02
+    FILE_ATTRIBUTE_SYSTEM = 0x04
+    ctypes.windll.kernel32.SetFileAttributesW(
+        ini_path, FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM
+    )
+
+    # 4. Marca a própria pasta como "read-only" (é o que sinaliza pro Explorer
+    # que essa pasta tem configurações customizadas via desktop.ini)
+    FILE_ATTRIBUTE_READONLY = 0x01
+    ctypes.windll.kernel32.SetFileAttributesW(folder_path, FILE_ATTRIBUTE_READONLY)
+
+    # 5. Força o Explorer a atualizar o ícone imediatamente
+    SHCNE_ASSOCCHANGED = 0x08000000
+    SHCNF_IDLIST = 0x0000
+    ctypes.windll.shell32.SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, None, None)
 
 def resource_path(relative_path):
     """Retorna o caminho absoluto do recurso, funcionando tanto em dev quanto empacotado."""
@@ -109,7 +158,6 @@ class sound:
         self.queque_.put(text)
 
 sound_ = sound()
-
 
 
 

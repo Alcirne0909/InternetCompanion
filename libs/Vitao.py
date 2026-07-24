@@ -11,7 +11,6 @@ from enum import Enum, auto
 from playsound3 import playsound
 import random
 import webbrowser
-import ctypes   
 from openrouter import OpenRouter
 from dotenv import load_dotenv
 
@@ -21,9 +20,6 @@ import os
 
 
 from libs.Bolafunctions import *
-
-
-
 
 
 
@@ -76,7 +72,7 @@ Regras:
 
         self.label = tk.Label(self.root, image=self.image, bg="white")
         self.label.pack()
-        
+        self.initPlate()
         self.Username = "Usuario"
         pass
 
@@ -92,10 +88,24 @@ Regras:
 
         self.ChangeImage("BolaBuddy1.png")
 
-    def EatAnShortCut(self):
-        self.Talk("Estou com fome, vou comer um pouquinho",2)
-        self.ClearMenu()
-        self.Resize(20,20)
+    def initPlate(self):
+        print("trying to create the plate")
+        self.CreatePlateFolder()
+
+    def CreatePlateFolder(self):
+        desktop_path = os.path.expanduser("~/Desktop")
+        icon_path = resource_path("icons/favicon.ico")
+        finalpath = desktop_path + "\\Prato do vitao"
+        create_folder_with_icon(finalpath, icon_path)
+        print(finalpath)
+        threading.Thread(target=CheckifFolderHasBeenModified, args=(finalpath, self.EatAnShortCut,), daemon=True).start()
+
+
+    def EatAnShortCut(self, Food, folderpath):
+        os.remove(folderpath + f"\\{Food}")
+        self.Talk(f"Obrigado por me alimentar, Estou com muita fome este {Food} parece delicioso",2)
+        #self.ClearMenu()
+        self.Resize(40,40)
 
         #Do the logic, of eating the shortcut
 
@@ -370,7 +380,10 @@ Regras:
         #Evento1: baixando uma biblioteca inteira de hentai no PC da vítima
 
     def Introduction(self):
+        if self.Username != "Usuario":
+            return
 
+        
         self.MoveWindow(1300,800)
         self.Talk("Olá, sou o bolabuddy. qual é o seu nome?", 2)
         #time.sleep(1)
