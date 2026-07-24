@@ -9,15 +9,20 @@ import threading
 from functools import partial
 from enum import Enum, auto
 from playsound3 import playsound
-OPENAI_KEY = "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"
 import random
 import webbrowser
 import ctypes   
 from openrouter import OpenRouter
-OPENROUTERAPIKEY = "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"
+from dotenv import load_dotenv
+
 from openai import OpenAI
 import sys
 import os
+
+
+load_dotenv()
+
+OPENROUTERAPIKEY = os.getenv("KEY")
 #clientCha = OpenAI(api_key=OPENAI_KEY)
 
 pyautogui.FAILSAFE = False
@@ -126,17 +131,9 @@ class sound:
 sound_ = sound()
 
 
-from pywinauto import Desktop
-
-def get_shortcut_position(icon_image_path):
-    try:
-        pos = pyautogui.locateCenterOnScreen(icon_image_path, confidence=0.8)
-        return pos  # (x, y) ou None se não achar
-    except pyautogui.ImageNotFoundException:
-        return None
 
 
-print(get_shortcut_position("FiveM.ink"))
+
 
 class vitao:
 
@@ -203,7 +200,6 @@ Regras:
 
     def EatAnShortCut(self):
         self.Talk("Estou com fome, vou comer um pouquinho",2)
-        print(get_shortcut_position("Five"))
         self.ClearMenu()
         self.Resize(20,20)
 
