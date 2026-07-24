@@ -66,6 +66,9 @@ Regras:
         self.LastChats = []
         self.SizeX = 250
         self.SizeY = 200
+        self.QuequeToEnterMainThread = queue.Queue()
+
+
         self.root.wm_attributes("-transparentcolor", "white")
 
         self.image = ImageTk.PhotoImage(Image.open(resource_path("BolaBuddy1.png")).resize((250, 200)))
@@ -84,7 +87,7 @@ Regras:
     def Resize(self , YToAdd, XToAdd):
         self.SizeX += YToAdd
         self.SizeY += XToAdd
-        self.root.geometry(f"{self.SizeX}x{self.SizeY}")
+        self.root.geometry(f"{self.SizeX}x{self.SizeY}+{YToAdd + self.root.winfo_x()}+{self.root.winfo_y()}")
 
         self.ChangeImage("BolaBuddy1.png")
 
@@ -94,22 +97,32 @@ Regras:
 
     def CreatePlateFolder(self):
         desktop_path = os.path.expanduser("~/Desktop")
-        icon_path = resource_path("icons/favicon.ico")
+
         finalpath = desktop_path + "\\Prato do vitao"
-        create_folder_with_icon(finalpath, icon_path)
-        print(finalpath)
+        if not os.path.isdir(desktop_path + "\\Prato do vitao"):
+            icon_path = resource_path("icons/favicon.ico")
+
+            create_folder_with_icon(finalpath, icon_path)
+            print(finalpath)
         threading.Thread(target=CheckifFolderHasBeenModified, args=(finalpath, self.EatAnShortCut,), daemon=True).start()
 
 
     def EatAnShortCut(self, Food, folderpath):
         os.remove(folderpath + f"\\{Food}")
-        self.Talk(f"Obrigado por me alimentar, Estou com muita fome este {Food} parece delicioso",2)
-        #self.ClearMenu()
-        self.Resize(40,40)
+      
 
         #Do the logic, of eating the shortcut
+        def do_ui_update():
+            self.Talk(f"Obrigado por me alimentar, Estou com muita fome este {Food} parece delicioso", 2)
+            self.Resize(40, 40)
+            #Ajeitar esse resize, porque o bolabuddy tá com erros de posicionamento
+            #provavelmente adicionar ao valor de Y esse valor de aumento Y, para assim ele continuar na tela
+            #Adicionar alguma coisa especial quando você alimenta ele -------------------
+        self.QuequeToEnterMainThread.put(do_ui_update)
+        #self.CreateMainMenu()
 
-        self.CreateMainMenu()
+
+
         #self.MoveToAPlace()   
     def ChangeWalkingState(self,State):
         self.WalkingState = State
@@ -414,7 +427,9 @@ Regras:
 
         while True:
             self.root.update()
-
+            while not self.QuequeToEnterMainThread.empty():
+                task = self.QuequeToEnterMainThread.get()
+                task()
             #self.MoveToAPlace(pyautogui.position().x,pyautogui.position().y,1000)
             #self.MoveWindow(pyautogui.position().x,pyautogui.position().y)
             #time.sleep(0.1)
