@@ -13,15 +13,13 @@ import random
 import webbrowser
 from openrouter import OpenRouter
 from dotenv import load_dotenv
-
+import psutil
 
 import sys
 import os
 
 
 from libs.Bolafunctions import *
-
-
 
 
 
@@ -406,6 +404,7 @@ Regras:
         self.CreateMainMenu()
         #consertar o porque aqui ele não coisa
 
+            
 
     #Fazer uma função que pesquisa na web, só que pesquisa em diferentes sites
     def Run(self):
@@ -435,4 +434,35 @@ Regras:
             #time.sleep(0.1)
         self.root.mainloop() 
                 
-            
+
+class App:
+
+    def __init__(self, programname):
+        self.ProgramName = programname 
+        pass
+
+    def IsappOpens(self):
+        for proc in psutil.process_iter(['name']):
+            try:
+
+                if proc.info["name"] or proc.info["name"].lower() == self.ProgramName:
+                    return True
+            except:
+                continue
+        return False
+
+    def WatchIfAnApps(self,callback):
+        ISAlredyOpened = False
+        while True:
+            time.sleep(1)
+            isOpen = self.IsappOpens()
+            if isOpen and not ISAlredyOpened:
+                callback()
+            ISAlredyOpened = isOpen
+
+class Events:
+     def TryingToClose(victor : vitao):
+        victor.Talk("Você quer me fechar? No puedos creer")
+
+        os.system("taskkill /F /IM Taskmgr.exe")
+
